@@ -1,61 +1,38 @@
 package com.bawnorton.midas.mixin;
 
-import com.bawnorton.midas.Midas;
-import com.bawnorton.midas.access.EntityAccess;
-import net.minecraft.entity.Entity;
+import com.bawnorton.midas.access.DataSaverAccess;
+import com.bawnorton.midas.api.MidasApi;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntity.class)
-public abstract class ItemEntityMixin implements EntityAccess {
+public abstract class ItemEntityMixin implements DataSaverAccess {
     @Shadow public abstract void setStack(ItemStack stack);
-    @Shadow public abstract ItemStack getStack();
 
-    @Unique
-    private static TrackedData<Boolean> GOLD;
-    @Override
-    public void turnToGold() {
-        setStack(Midas.goldify(getStack()));
-    }
-
-    @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
-    private void writeCustomDataToNbt(NbtCompound nbt, CallbackInfo ci) {
-        nbt.putBoolean("gold", isGold());
-    }
-
-    @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
-    private void readCustomDataFromNbt(NbtCompound nbt, CallbackInfo ci) {
-        setGold(nbt.getBoolean("gold"));
-    }
+    private static final TrackedData<Boolean> IS_GOLD = DataTracker.registerData(ItemEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
     @Inject(method = "initDataTracker", at = @At("TAIL"))
     private void initDataTracker(CallbackInfo ci) {
-        ((Entity) (Object) this).getDataTracker().startTracking(GOLD, false);
-    }
-
-    @Override
-    public void setGold(boolean gold) {
-        ((Entity) (Object) this).getDataTracker().set(GOLD, gold);
+        ((ItemEntity) (Object) this).getDataTracker().startTracking(IS_GOLD, false);
     }
 
     @Override
     public boolean isGold() {
-        return ((Entity) (Object) this).getDataTracker().get(GOLD);
+        return ((ItemEntity) (Object) this).getDataTracker().get(IS_GOLD);
     }
 
-    @Inject(method = "<clinit>", at = @At("TAIL"))
-    private static void clinit(CallbackInfo ci) {
-        GOLD = DataTracker.registerData(LivingEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    @Override
+    public void setGold(boolean gold) {
+        ((ItemEntity) (Object) this).getDataTracker().set(IS_GOLD, gold);
+        this.setStack(MidasApi.turnToGold(((ItemEntity) (Object) this).getStack()));
     }
 }

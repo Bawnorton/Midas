@@ -1,6 +1,6 @@
 package com.bawnorton.midas.mixin.client;
 
-import com.bawnorton.midas.access.EntityAccess;
+import com.bawnorton.midas.api.MidasApi;
 import net.minecraft.client.render.OverlayVertexConsumer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -34,7 +34,7 @@ public abstract class MinecartEntityRendererMixin {
     }
 
     public VertexConsumer getVertexConsumer(AbstractMinecartEntity abstractMinecartEntity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, RenderLayer defaultRenderLayer) {
-        if (((EntityAccess) abstractMinecartEntity).isGold()) {
+        if (MidasApi.isGold(abstractMinecartEntity)) {
             return new OverlayVertexConsumer(vertexConsumerProvider.getBuffer(RenderLayer.getEntitySolid(GOLD_BLOCK)), matrixStack.peek().getPositionMatrix(), matrixStack.peek().getNormalMatrix(), 1.0F);
         } else {
             return vertexConsumerProvider.getBuffer(defaultRenderLayer);

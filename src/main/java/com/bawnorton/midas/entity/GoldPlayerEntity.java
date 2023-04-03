@@ -1,7 +1,7 @@
 package com.bawnorton.midas.entity;
 
 import com.bawnorton.midas.Midas;
-import com.bawnorton.midas.access.EntityAccess;
+import com.bawnorton.midas.api.MidasApi;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.mob.ZombieEntity;
@@ -34,16 +34,16 @@ public class GoldPlayerEntity extends ZombieEntity {
 
         GoldPlayerEntity instance = new GoldPlayerEntity(Midas.GOLD_PLAYER, world);
         instance.ofPlayer = forPlayer;
-        instance.inventory = forPlayer.getInventory().main.stream().map(Midas::goldify).toList();
-        instance.equipStack(EquipmentSlot.HEAD, Midas.goldify(forPlayer.getEquippedStack(EquipmentSlot.HEAD)));
-        instance.equipStack(EquipmentSlot.CHEST, Midas.goldify(forPlayer.getEquippedStack(EquipmentSlot.CHEST)));
-        instance.equipStack(EquipmentSlot.LEGS, Midas.goldify(forPlayer.getEquippedStack(EquipmentSlot.LEGS)));
-        instance.equipStack(EquipmentSlot.FEET, Midas.goldify(forPlayer.getEquippedStack(EquipmentSlot.FEET)));
-        instance.equipStack(EquipmentSlot.MAINHAND, Midas.goldify(forPlayer.getEquippedStack(EquipmentSlot.MAINHAND)));
-        instance.equipStack(EquipmentSlot.OFFHAND, Midas.goldify(forPlayer.getEquippedStack(EquipmentSlot.OFFHAND)));
+        instance.inventory = forPlayer.getInventory().main.stream().map(MidasApi::turnToGold).toList();
+        instance.equipStack(EquipmentSlot.HEAD, MidasApi.turnToGold(forPlayer.getEquippedStack(EquipmentSlot.HEAD)));
+        instance.equipStack(EquipmentSlot.CHEST, MidasApi.turnToGold(forPlayer.getEquippedStack(EquipmentSlot.CHEST)));
+        instance.equipStack(EquipmentSlot.LEGS, MidasApi.turnToGold(forPlayer.getEquippedStack(EquipmentSlot.LEGS)));
+        instance.equipStack(EquipmentSlot.FEET, MidasApi.turnToGold(forPlayer.getEquippedStack(EquipmentSlot.FEET)));
+        instance.equipStack(EquipmentSlot.MAINHAND, MidasApi.turnToGold(forPlayer.getEquippedStack(EquipmentSlot.MAINHAND)));
+        instance.equipStack(EquipmentSlot.OFFHAND, MidasApi.turnToGold(forPlayer.getEquippedStack(EquipmentSlot.OFFHAND)));
         instance.setHealth(20);
         instance.unsetRemoved();
-        ((EntityAccess) instance).turnToGold();
+        MidasApi.turnToGold(instance);
         world.spawnEntity(instance);
         return instance;
     }

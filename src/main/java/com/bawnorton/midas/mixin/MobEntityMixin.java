@@ -1,6 +1,6 @@
 package com.bawnorton.midas.mixin;
 
-import com.bawnorton.midas.access.EntityAccess;
+import com.bawnorton.midas.api.MidasApi;
 import net.minecraft.entity.mob.MobEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MobEntityMixin  {
     @Inject(method = "isAiDisabled", at = @At("RETURN"), cancellable = true)
     private void isAiDisabled(CallbackInfoReturnable<Boolean> cir) {
-        if(((EntityAccess) this).isGold()) {
+        if(MidasApi.isGold((MobEntity) (Object) this)) {
             cir.setReturnValue(true);
         }
     }

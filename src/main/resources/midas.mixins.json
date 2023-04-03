@@ -3,7 +3,7 @@
 	"package": "com.bawnorton.midas.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"BlockMixin",
+		"AbstractBlockAccessor",
 		"ChestBlockEntityMixin",
 		"CreeperEntityMixin",
 		"EndermanEntityMixin",
@@ -13,6 +13,7 @@
 		"MinecartEntityMixin",
 		"MobEntityMixin",
 		"PlayerEntityMixin",
+		"PlayerInventoryMixin",
 		"ServerPlayerEntityMixin"
 	],
 	"injectors": {

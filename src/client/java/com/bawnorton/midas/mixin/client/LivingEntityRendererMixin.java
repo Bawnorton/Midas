@@ -1,10 +1,12 @@
 package com.bawnorton.midas.mixin.client;
 
-import com.bawnorton.midas.access.EntityAccess;
 import com.bawnorton.midas.access.LivingEntityRendererAccess;
-import com.bawnorton.midas.entity.GoldPlayerEntity;
+import com.bawnorton.midas.api.MidasApi;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.OverlayVertexConsumer;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
@@ -49,7 +51,7 @@ public abstract class LivingEntityRendererMixin extends EntityRenderer<LivingEnt
 
 	@Override
 	public VertexConsumer getVertexConsumer(LivingEntity livingEntity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, boolean isVisible, boolean isTranslucent, boolean hasOutline, RenderLayer defaultRenderLayer) {
-		if (((EntityAccess) livingEntity).isGold()) {
+		if (MidasApi.isGold(livingEntity)) {
 			return new OverlayVertexConsumer(vertexConsumerProvider.getBuffer(RenderLayer.getEntitySolid(GOLD_BLOCK)), matrixStack.peek().getPositionMatrix(), matrixStack.peek().getNormalMatrix(), 1.0F);
 		} else {
 			return vertexConsumerProvider.getBuffer(defaultRenderLayer);

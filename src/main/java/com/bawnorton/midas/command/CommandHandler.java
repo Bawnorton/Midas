@@ -1,6 +1,6 @@
 package com.bawnorton.midas.command;
 
-import com.bawnorton.midas.access.PlayerEntityAccess;
+import com.bawnorton.midas.api.MidasApi;
 import com.bawnorton.midas.entity.GoldPlayerEntity;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -56,12 +56,8 @@ public class CommandHandler {
         } catch (CommandSyntaxException | IllegalArgumentException e) {
             player = context.getSource().getPlayerOrThrow();
         }
-        if(player instanceof PlayerEntityAccess playerEntityAccess) {
-            playerEntityAccess.setCursed(false);
-            player.sendMessage(Text.translatable("midas.cleanse"), false);
-        } else {
-            context.getSource().sendFeedback(Text.translatable("midas.cleanse.error"), false);
-        }
+        MidasApi.cleansePlayer(player);
+        player.sendMessage(Text.translatable("midas.cleanse"), false);
         return 1;
     }
 
@@ -72,12 +68,8 @@ public class CommandHandler {
         } catch (CommandSyntaxException | IllegalArgumentException e) {
             player = context.getSource().getPlayerOrThrow();
         }
-        if(player instanceof PlayerEntityAccess playerEntityAccess) {
-            playerEntityAccess.setCursed(true);
-            player.sendMessage(Text.translatable("midas.curse"), false);
-        } else {
-            context.getSource().sendFeedback(Text.translatable("midas.curse.error"), false);
-        }
+        MidasApi.cursePlayer(player);
+        player.sendMessage(Text.translatable("midas.curse"), false);
         return 1;
     }
 

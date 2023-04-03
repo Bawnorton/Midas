@@ -1,7 +1,7 @@
 package com.bawnorton.midas.mixin.client;
 
 import com.bawnorton.midas.access.LivingEntityRendererAccess;
-import com.bawnorton.midas.access.PlayerEntityAccess;
+import com.bawnorton.midas.api.MidasApi;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
@@ -38,7 +38,7 @@ public abstract class PlayerEntityRendererMixin extends LivingEntityRenderer<Abs
 
     @Override
     public VertexConsumer getVertexConsumer(AbstractClientPlayerEntity livingEntity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, boolean bl, boolean bl2, boolean bl3, RenderLayer renderLayer) {
-        if(livingEntity != null && ((PlayerEntityAccess) livingEntity).isCursed()) {
+        if(MidasApi.isCursed(livingEntity)) {
             VertexConsumer glint = vertexConsumerProvider.getBuffer(RenderLayer.getEntityGlint());
             VertexConsumer normal = vertexConsumerProvider.getBuffer(renderLayer);
             return VertexConsumers.union(glint, normal);

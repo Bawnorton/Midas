@@ -1,6 +1,6 @@
 package com.bawnorton.midas.mixin.client;
 
-import com.bawnorton.midas.access.BlockEntityAccess;
+import com.bawnorton.midas.api.MidasApi;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.ChestType;
 import net.minecraft.client.render.TexturedRenderLayers;
@@ -15,10 +15,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public abstract class ChestBlockEntityRendererMixin {
     @Redirect(method = "render(Lnet/minecraft/block/entity/BlockEntity;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;II)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TexturedRenderLayers;getChestTextureId(Lnet/minecraft/block/entity/BlockEntity;Lnet/minecraft/block/enums/ChestType;Z)Lnet/minecraft/client/util/SpriteIdentifier;"))
     private SpriteIdentifier getChestTextureId(BlockEntity blockEntity, ChestType chestType, boolean bl) {
-        if (blockEntity instanceof BlockEntityAccess blockEntityAccess) {
-            if (blockEntityAccess.isGold()) {
-                return new SpriteIdentifier(TexturedRenderLayers.CHEST_ATLAS_TEXTURE, new Identifier("midas", "entity/chest/gold"));
-            }
+        if (MidasApi.isGold(blockEntity)) {
+            return new SpriteIdentifier(TexturedRenderLayers.CHEST_ATLAS_TEXTURE, new Identifier("midas", "entity/chest/gold"));
         }
         return TexturedRenderLayers.getChestTextureId(blockEntity, chestType, bl);
     }

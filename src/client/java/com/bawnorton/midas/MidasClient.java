@@ -1,5 +1,6 @@
 package com.bawnorton.midas;
 
+import com.bawnorton.midas.network.ClientNetworking;
 import com.bawnorton.midas.renderer.GoldPlayerEntityRenderer;
 import com.bawnorton.midas.renderer.model.GoldPlayerEntityModel;
 import net.fabricmc.api.ClientModInitializer;
@@ -11,5 +12,7 @@ public class MidasClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		EntityModelLayerRegistry.registerModelLayer(GoldPlayerEntityModel.LAYER_LOCATION, GoldPlayerEntityModel::getTextureModelData);
 		EntityRendererRegistry.register(Midas.GOLD_PLAYER, GoldPlayerEntityRenderer::new);
+
+		ClientNetworking.init();
 	}
 }

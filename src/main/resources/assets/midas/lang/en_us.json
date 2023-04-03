@@ -1,9 +1,9 @@
 {
-  "midas.cleanse": "You will no longer turn everything you touch into gold.",
-  "midas.curse": "You will turn everything you touch into gold.",
+  "midas.cleanse": "Everything you touch will no longer turn into gold.",
+  "midas.curse": "Everything you touch will turn into gold.",
   "midas.cleanse.error": "Target is not a Player",
   "midas.curse.error": "Target is not a Player",
-  "death.attack.midas": "%s was turned to gold",
+  "death.attack.midas": "%s was turned into gold",
   "midas.create.gold": "Gold Player Created",
   "midas.create.gold.error": "Failed to create Gold Player"
 }
