@@ -5,7 +5,8 @@
 	"mixins": [
 		"BlockMixin",
 		"ChestBlockEntityMixin",
-		"DamageSourceMixin",
+		"CreeperEntityMixin",
+		"EndermanEntityMixin",
 		"EntityMixin",
 		"ItemEntityMixin",
 		"LivingEntityMixin",

@@ -5,6 +5,7 @@ import com.bawnorton.midas.access.PlayerEntityAccess;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -16,6 +17,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin extends LivingEntity implements PlayerEntityAccess {
@@ -51,11 +53,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerEn
     @Inject(method = "collideWithEntity", at = @At("HEAD"))
     public void collideWithEntity(Entity entity, CallbackInfo ci) {
         if(isCursed() && !this.world.isClient) {
-            if(entity instanceof PlayerEntityAccess playerEntityAccess) {
-                playerEntityAccess.killedByGold((PlayerEntity) (Object) this);
-            } else {
-                ((EntityAccess) entity).turnToGold();
-            }
+            ((EntityAccess) entity).turnToGold();
         }
     }
 
@@ -64,15 +62,21 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerEn
         IS_CURSED = DataTracker.registerData(PlayerEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     }
 
-    @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "attack", at = @At("HEAD"))
     public void attack(Entity target, CallbackInfo ci) {
         if(isCursed() && !this.world.isClient) {
-            if(target instanceof PlayerEntityAccess access) {
-                access.killedByGold((PlayerEntity) (Object) this);
-            } else {
-                ((EntityAccess) target).turnToGold();
+            ((EntityAccess) target).turnToGold();
+        }
+    }
+
+    @Inject(method = "damage", at = @At("HEAD"))
+    public void damage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if(isCursed() && !this.world.isClient) {
+            if(source.getAttacker() != null) {
+                if(this.squaredDistanceTo(source.getAttacker()) < 6) {
+                    ((EntityAccess) source.getAttacker()).turnToGold();
+                }
             }
-            ci.cancel();
         }
     }
 }

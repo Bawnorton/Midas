@@ -2,11 +2,9 @@ package com.bawnorton.midas.mixin.client;
 
 import com.bawnorton.midas.access.EntityAccess;
 import com.bawnorton.midas.access.LivingEntityRendererAccess;
+import com.bawnorton.midas.entity.GoldPlayerEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.OverlayVertexConsumer;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
