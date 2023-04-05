@@ -9,11 +9,14 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
@@ -43,6 +46,8 @@ public abstract class PlayerEntityMixin implements DataSaverAccess {
     private void tickMovement(CallbackInfo ci) {
         PlayerEntity player = (PlayerEntity) (Object) this;
         if (!player.world.isClient && MidasApi.isCursed(player)) {
+            ServerWorld world = (ServerWorld) player.world;
+
             Vec3d pos = player.getPos().add(0, 1, 0);
 
             Vec3d north = pos.add(0, 0, -0.5);
@@ -58,14 +63,28 @@ public abstract class PlayerEntityMixin implements DataSaverAccess {
 
             List<Vec3d> positions = List.of(north, east, south, west, northDown, eastDown, southDown, westDown, straightUp, straightDown);
 
-            positions.stream().collect(Collectors.toMap(vec3d -> vec3d, vec3d -> player.world.getBlockState(BlockPos.ofFloored(vec3d)))).entrySet().stream().filter(entry -> ((AbstractBlockAccessor) entry.getValue().getBlock()).isCollidable()).map(entry -> Map.entry(BlockPos.ofFloored(entry.getKey()), MidasApi.turnToGold(entry.getValue()))).forEach(entry -> {
-                BlockPos blockPos = entry.getKey();
-                BlockState blockState = entry.getValue();
-                BlockEntity blockEntity = player.world.getBlockEntity(blockPos);
-                MidasApi.turnToGold(blockEntity);
-                if (blockEntity != null) return;
-                player.world.setBlockState(blockPos, MidasApi.turnToGold(blockState), Block.NOTIFY_ALL);
-            });
+            positions.stream()
+                    .collect(Collectors.toMap(vec3d -> vec3d, vec3d -> player.world.getBlockState(BlockPos.ofFloored(vec3d))))
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> ((AbstractBlockAccessor) entry.getValue().getBlock()).isCollidable())
+                    .map(entry -> Map.entry(BlockPos.ofFloored(entry.getKey()), MidasApi.turnToGold(entry.getValue(), BlockPos.ofFloored(entry.getKey()), world)))
+                    .forEach(entry -> {
+                        BlockPos blockPos = entry.getKey();
+                        BlockState blockState = entry.getValue();
+                        BlockEntity blockEntity = player.world.getBlockEntity(blockPos);
+                        MidasApi.turnToGold(blockEntity);
+                        if (blockEntity != null) return;
+                        player.world.setBlockState(blockPos, MidasApi.turnToGold(blockState, blockPos, world), Block.NOTIFY_ALL);
+                    });
         }
+    }
+
+    @ModifyVariable(method = "dropItem(Lnet/minecraft/item/ItemStack;ZZ)Lnet/minecraft/entity/ItemEntity;", at = @At("HEAD"), index = 1, argsOnly = true)
+    private ItemStack dropItem(ItemStack value) {
+        if (MidasApi.isCursed((PlayerEntity) (Object) this)) {
+            return MidasApi.turnToGold(value);
+        }
+        return value;
     }
 }

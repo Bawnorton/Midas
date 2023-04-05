@@ -1,4 +1,4 @@
-package com.bawnorton.midas.renderer.model;
+package com.bawnorton.midas.renderer.model.entity;
 
 import com.bawnorton.midas.Midas;
 import net.minecraft.client.model.Dilation;

@@ -1,7 +1,7 @@
 package com.bawnorton.midas.renderer;
 
 import com.bawnorton.midas.entity.GoldPlayerEntity;
-import com.bawnorton.midas.renderer.model.GoldPlayerEntityModel;
+import com.bawnorton.midas.renderer.model.entity.GoldPlayerEntityModel;
 import net.minecraft.client.render.entity.BipedEntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;

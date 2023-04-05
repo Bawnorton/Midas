@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class CreeperEntityMixin {
     @Inject(method = "explode", at = @At("HEAD"), cancellable = true)
     private void explode(CallbackInfo ci) {
-        if(MidasApi.isGold((CreeperEntity) (Object) this)) {
+        if(MidasApi.isGold(this)) {
             ci.cancel();
         }
     }

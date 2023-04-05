@@ -17,7 +17,7 @@ public abstract class PlayerInventoryMixin {
 
     @ModifyArg(method = "insertStack(ILnet/minecraft/item/ItemStack;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/collection/DefaultedList;set(ILjava/lang/Object;)Ljava/lang/Object;"), index = 1)
     private <E> E insertStack(E element) {
-        if (MidasApi.isCursed(player)) {
+        if (!player.world.isClient && MidasApi.isCursed(player)) {
             return (E) MidasApi.turnToGold((ItemStack) element);
         }
         return element;
@@ -25,7 +25,7 @@ public abstract class PlayerInventoryMixin {
 
     @ModifyArg(method = "insertStack(ILnet/minecraft/item/ItemStack;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;addStack(ILnet/minecraft/item/ItemStack;)I"), index = 1)
     private ItemStack addSlotStack(ItemStack element) {
-        if (MidasApi.isCursed(player)) {
+        if (!player.world.isClient && MidasApi.isCursed(player)) {
             return MidasApi.turnToGold(element);
         }
         return element;
@@ -33,7 +33,7 @@ public abstract class PlayerInventoryMixin {
 
     @ModifyArg(method = "insertStack(ILnet/minecraft/item/ItemStack;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;addStack(Lnet/minecraft/item/ItemStack;)I"), index = 0)
     private ItemStack addStack(ItemStack element) {
-        if (MidasApi.isCursed(player)) {
+        if (!player.world.isClient && MidasApi.isCursed(player)) {
             return MidasApi.turnToGold(element);
         }
         return element;

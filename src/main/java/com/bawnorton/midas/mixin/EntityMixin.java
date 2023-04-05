@@ -60,14 +60,14 @@ public abstract class EntityMixin implements DataSaverAccess {
 
     @Inject(method = "isFireImmune", at = @At("RETURN"), cancellable = true)
     private void isFireImmune(CallbackInfoReturnable<Boolean> cir) {
-        if(MidasApi.isGold((Entity) (Object) this)) {
+        if(MidasApi.isGold(this)) {
             cir.setReturnValue(true);
         }
     }
 
     @Inject(method = "isSilent", at = @At("RETURN"), cancellable = true)
     private void isSilent(CallbackInfoReturnable<Boolean> cir) {
-        if(MidasApi.isGold((Entity) (Object) this)) {
+        if(MidasApi.isGold(this)) {
             cir.setReturnValue(true);
         }
     }

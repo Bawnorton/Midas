@@ -1,5 +1,6 @@
 package com.bawnorton.midas.command;
 
+import com.bawnorton.midas.access.DataSaverAccess;
 import com.bawnorton.midas.api.MidasApi;
 import com.bawnorton.midas.entity.GoldPlayerEntity;
 import com.mojang.brigadier.CommandDispatcher;
@@ -8,6 +9,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,7 +22,24 @@ public class CommandHandler {
             registerCurseCommand(dispatcher);
             registerCleanseCommand(dispatcher);
             registerCreateGoldPlayer(dispatcher);
+            registerDebugCommand(dispatcher);
         }));
+    }
+
+    private static void registerDebugCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
+        LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager.literal("midasdebug")
+                .requires(source -> source.hasPermissionLevel(2))
+                .executes(CommandHandler::debug);
+        dispatcher.register(builder);
+    }
+
+    private static int debug(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerCommandSource source = context.getSource();
+        ItemStack stack = source.getPlayerOrThrow().getInventory().getMainHandStack();
+        if((Object) stack instanceof DataSaverAccess dataSaverAccess) {
+            source.sendFeedback(Text.of("isGold: " + dataSaverAccess.isGold()), false);
+        }
+        return 1;
     }
 
     private static void registerCurseCommand(CommandDispatcher<ServerCommandSource> dispatcher) {

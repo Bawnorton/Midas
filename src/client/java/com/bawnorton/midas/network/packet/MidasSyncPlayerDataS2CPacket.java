@@ -7,7 +7,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
-public class MidasSyncDataS2CPacket {
+public class MidasSyncPlayerDataS2CPacket {
     public static void receive(MinecraftClient client, ClientPlayNetworkHandler networkHandler, PacketByteBuf buf, PacketSender packetSender) {
         if(client.player instanceof DataSaverAccess dataAccess) {
             NbtCompound midasData = dataAccess.getMidasData();

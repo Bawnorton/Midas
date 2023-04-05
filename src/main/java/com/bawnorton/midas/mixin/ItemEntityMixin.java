@@ -3,11 +3,11 @@ package com.bawnorton.midas.mixin;
 import com.bawnorton.midas.access.DataSaverAccess;
 import com.bawnorton.midas.api.MidasApi;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityMixin implements DataSaverAccess {
-    @Shadow public abstract void setStack(ItemStack stack);
+    @Shadow public abstract ItemStack getStack();
 
     private static final TrackedData<Boolean> IS_GOLD = DataTracker.registerData(ItemEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
@@ -33,6 +33,9 @@ public abstract class ItemEntityMixin implements DataSaverAccess {
     @Override
     public void setGold(boolean gold) {
         ((ItemEntity) (Object) this).getDataTracker().set(IS_GOLD, gold);
-        this.setStack(MidasApi.turnToGold(((ItemEntity) (Object) this).getStack()));
+        World world = ((ItemEntity) (Object) this).world;
+        if(!world.isClient) {
+            MidasApi.turnToGold(this.getStack());
+        }
     }
 }

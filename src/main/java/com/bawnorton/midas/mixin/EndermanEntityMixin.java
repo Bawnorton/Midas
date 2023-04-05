@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class EndermanEntityMixin  {
     @Inject(method = "teleportTo(DDD)Z", at = @At("HEAD"), cancellable = true)
     private void teleportRandomly(CallbackInfoReturnable<Boolean> cir) {
-        if(MidasApi.isGold((EndermanEntity) (Object) this)) {
+        if(MidasApi.isGold(this)) {
             cir.setReturnValue(false);
             cir.cancel();
         }

@@ -2,13 +2,11 @@ package com.bawnorton.midas.mixin;
 
 import com.bawnorton.midas.access.DataSaverAccess;
 import com.bawnorton.midas.api.MidasApi;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.Box;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,7 +38,7 @@ public abstract class LivingEntityMixin implements DataSaverAccess {
 
     @Inject(method = "dropLoot", at = @At("HEAD"), cancellable = true)
     private void dropLoot(DamageSource source, boolean causedByPlayer, CallbackInfo ci) {
-        if(MidasApi.isGold((LivingEntity) (Object) this)) {
+        if(MidasApi.isGold(this)) {
             Box box = this.getVisibilityBoundingBox();
             double volume = box.getXLength() * box.getYLength() * box.getZLength();
 

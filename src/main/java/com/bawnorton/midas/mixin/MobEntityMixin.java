@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MobEntityMixin  {
     @Inject(method = "isAiDisabled", at = @At("RETURN"), cancellable = true)
     private void isAiDisabled(CallbackInfoReturnable<Boolean> cir) {
-        if(MidasApi.isGold((MobEntity) (Object) this)) {
+        if(MidasApi.isGold(this)) {
             cir.setReturnValue(true);
         }
     }

@@ -1,8 +1,12 @@
 package com.bawnorton.midas.api;
 
+import com.bawnorton.midas.Midas;
 import com.bawnorton.midas.access.DataSaverAccess;
 import com.bawnorton.midas.access.ServerPlayerAccess;
+import com.bawnorton.midas.block.GoldBlock;
+import com.bawnorton.midas.block.GoldBlockEntity;
 import com.bawnorton.midas.entity.GoldPlayerEntity;
+import com.bawnorton.midas.item.GoldItem;
 import com.bawnorton.midas.network.Networking;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -23,11 +27,26 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Property;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class MidasApi {
+
+    private static Item getGoldCopy(Item item) {
+        if(item == Items.AIR) return item;
+        if(item instanceof GoldItem) return item;
+        return Midas.DEFAULT_GOLD_ITEM;
+    }
+
+    private static Block getGoldCopy(Block block) {
+        if(block.getDefaultState().isAir()) return block;
+        if(block instanceof GoldBlock) return block;
+        return Midas.DEFAULT_GOLD_BLOCK;
+    }
+
     public static void cursePlayer(PlayerEntity player) {
         DataSaverAccess playerEntityAccess = getDataAccess(player);
         if(playerEntityAccess == null) return;
@@ -36,7 +55,7 @@ public abstract class MidasApi {
         NbtCompound midasData = playerEntityAccess.getMidasData();
         midasData.putBoolean("cursed", true);
         if(player instanceof ServerPlayerEntity serverPlayer) {
-            syncData(serverPlayer, midasData.getBoolean("cursed"), midasData.getBoolean("gold"));
+            syncPlayerData(serverPlayer, midasData.getBoolean("cursed"), midasData.getBoolean("gold"));
         }
     }
 
@@ -48,7 +67,7 @@ public abstract class MidasApi {
         NbtCompound midasData = playerEntityAccess.getMidasData();
         midasData.putBoolean("cursed", false);
         if(player instanceof ServerPlayerEntity serverPlayer) {
-            syncData(serverPlayer, midasData.getBoolean("cursed"), midasData.getBoolean("gold"));
+            syncPlayerData(serverPlayer, midasData.getBoolean("cursed"), midasData.getBoolean("gold"));
         }
     }
 
@@ -82,14 +101,8 @@ public abstract class MidasApi {
             Text text = Text.translatable("death.attack.midas", serverPlayer.getDisplayName());
             serverPlayer.networkHandler.sendPacket(new DeathMessageS2CPacket(serverPlayer.getDamageTracker(), text));
             serverPlayer.server.getPlayerManager().broadcast(text, false);
-            syncData(serverPlayer, midasData.getBoolean("cursed"), midasData.getBoolean("gold"));
+            syncPlayerData(serverPlayer, midasData.getBoolean("cursed"), midasData.getBoolean("gold"));
         }
-    }
-
-    public static boolean isGold(Entity entity) {
-        DataSaverAccess entityAccess = getDataAccess(entity);
-        if(entityAccess == null) return false;
-        return entityAccess.isGold();
     }
 
     public static void turnToGold(BlockEntity blockEntity) {
@@ -102,11 +115,10 @@ public abstract class MidasApi {
         blockEntity.getWorld().updateListeners(blockEntity.getPos(), blockEntity.getCachedState(), blockEntity.getCachedState(), 3);
     }
 
-    public static boolean isGold(BlockEntity blockEntity) {
-        DataSaverAccess blockEntityAccess = getDataAccess(blockEntity);
-        if(blockEntityAccess == null) return false;
-        NbtCompound midasData = blockEntityAccess.getMidasData();
-        return midasData.getBoolean("gold");
+    public static boolean isGold(Object obj) {
+        DataSaverAccess dataAccess = getDataAccess(obj);
+        if(dataAccess == null) return false;
+        return dataAccess.isGold();
     }
 
     @Nullable
@@ -171,7 +183,7 @@ public abstract class MidasApi {
             return Items.GOLDEN_HORSE_ARMOR;
         if (item instanceof BlockItem)
             return turnToGold(((BlockItem) item).getBlock()).asItem();
-        return Items.GOLD_INGOT;
+        return getGoldCopy(item);
     }
 
     public static Block turnToGold(Block block) {
@@ -187,12 +199,27 @@ public abstract class MidasApi {
         if(block == Blocks.NETHER_QUARTZ_ORE || block == Blocks.NETHER_GOLD_ORE) {
             return Blocks.NETHER_GOLD_ORE;
         }
-        return Blocks.GOLD_BLOCK;
+        return getGoldCopy(block);
     }
 
-    public static BlockState turnToGold(BlockState blockState) {
-        Block goldBlock = turnToGold(blockState.getBlock());
-        return goldBlock == blockState.getBlock() ? blockState : copyProperties(blockState, goldBlock.getDefaultState());
+    public static BlockState turnToGold(BlockState blockState, BlockPos pos, ServerWorld world) {
+        if(blockState.isOf(Midas.DEFAULT_GOLD_BLOCK)) return blockState;
+
+        Block original = blockState.getBlock();
+        Block block = turnToGold(blockState.getBlock());
+        BlockState newState = copyProperties(blockState, block.getDefaultState());
+        world.setBlockState(pos, newState, Block.NOTIFY_ALL);
+        if(block instanceof GoldBlock) {
+            BlockEntity entity = world.getBlockEntity(pos);
+            if(entity instanceof GoldBlockEntity goldBlockEntity) {
+                goldBlockEntity.setData(original);
+            } else {
+                GoldBlockEntity goldBlockEntity = new GoldBlockEntity(pos, newState);
+                goldBlockEntity.setData(original);
+                world.addBlockEntity(goldBlockEntity);
+            }
+        }
+        return newState;
     }
 
     private static BlockState copyProperties(BlockState blockState, BlockState newBlockState) {
@@ -210,12 +237,12 @@ public abstract class MidasApi {
         return newBlockState;
     }
 
-    private static void syncData(ServerPlayerEntity player, boolean isCursed, boolean isGold) {
+    private static void syncPlayerData(ServerPlayerEntity player, boolean isCursed, boolean isGold) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeBoolean(isCursed);
         buf.writeBoolean(isGold);
         if(player.networkHandler != null) {
-            ServerPlayNetworking.send(player, Networking.MIDAS_SYNC, buf);
+            ServerPlayNetworking.send(player, Networking.MIDAS_PLAYER_SYNC, buf);
         }
     }
 }
