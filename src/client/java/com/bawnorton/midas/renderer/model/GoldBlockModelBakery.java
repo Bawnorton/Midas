@@ -3,11 +3,9 @@ package com.bawnorton.midas.renderer.model;
 import com.bawnorton.midas.Midas;
 import com.bawnorton.midas.util.GoldBlockData;
 import com.google.common.collect.ImmutableList;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.Block;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.Baker;
-import net.minecraft.client.render.model.ModelBakeSettings;
-import net.minecraft.client.render.model.UnbakedModel;
+import net.minecraft.client.render.model.*;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.screen.PlayerScreenHandler;
@@ -17,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 public interface GoldBlockModelBakery<T> {
@@ -36,10 +35,10 @@ public interface GoldBlockModelBakery<T> {
 
         @Override
         public T bake(@Nullable Object cacheKey, @Nullable Block originial) {
-//            T result = cache.get(cacheKey);
-//            if(result != null) return result;
+            T result = cache.get(cacheKey);
+            if(result != null) return result;
 
-            T result = uncached.bake(cacheKey, originial);
+            result = uncached.bake(cacheKey, originial);
             synchronized(UPDATE_LOCK) { cache.put(cacheKey, result); }
             return result;
         }
@@ -63,8 +62,8 @@ public interface GoldBlockModelBakery<T> {
             return ImmutableList.of(blockModelId);
         }
 
-        public void setParents(Function<Identifier, UnbakedModel> unbakedModelGetter) {
-            unbakedModelGetter.apply(blockModelId);
+        public void setParents(Function<Identifier, UnbakedModel> modelLoader) {
+            modelLoader.apply(blockModelId).setParents(modelLoader);
         }
 
         public GoldBlockModelBakery<T> createBakery(Baker baker, Function<SpriteIdentifier, Sprite> textureGetter, ModelBakeSettings settings, Identifier modelId) {

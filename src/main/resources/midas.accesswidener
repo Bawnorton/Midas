@@ -1,4 +1,4 @@
 accessWidener	v1	named
-accessible field net/minecraft/client/render/model/json/ModelOverrideList overrides [Lnet/minecraft/client/render/model/json/ModelOverrideList$BakedOverride;
-accessible field net/minecraft/client/render/model/json/ModelOverrideList$BakedOverride model Lnet/minecraft/client/render/model/BakedModel;
-accessible field net/minecraft/client/render/model/BakedModelManager models Ljava/util/Map;
+accessible class net/minecraft/client/texture/TextureStitcher$Holder
+accessible field net/minecraft/client/texture/NativeImage pointer J
+accessible field net/minecraft/client/texture/SpriteContents image Lnet/minecraft/client/texture/NativeImage;

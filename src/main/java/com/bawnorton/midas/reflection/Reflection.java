@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("unchecked")
 public class Reflection {
     public static <T> List<T> getFields(Class<?> clazz, String containsString, Class<T> type) {
         return Arrays.stream(clazz.getDeclaredFields())

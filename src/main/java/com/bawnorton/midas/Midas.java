@@ -6,7 +6,6 @@ import com.bawnorton.midas.command.CommandHandler;
 import com.bawnorton.midas.entity.GoldPlayerEntity;
 import com.bawnorton.midas.item.GoldItem;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
@@ -45,11 +44,6 @@ public class Midas implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("Initializing Midas");
 		CommandHandler.init();
-
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(listener -> {
-			listener.add(DEFAULT_GOLD_BLOCK_ITEM.getDefaultStack());
-			listener.add(DEFAULT_GOLD_ITEM.getDefaultStack());
-		});
 
 		FabricDefaultAttributeRegistry.register(GOLD_PLAYER, GoldPlayerEntity.createZombieAttributes());
 	}

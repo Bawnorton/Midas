@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 public class GoldBlockEntity extends BlockEntity implements RenderAttachmentBlockEntity {
-    private GoldBlockData data;
+    private GoldBlockData data = new GoldBlockData(Blocks.GOLD_BLOCK);
 
     public GoldBlockEntity(BlockPos pos, BlockState state) {
         super(Midas.GOLD_BLOCK_ENTITY, pos, state);
