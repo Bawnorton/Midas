@@ -46,6 +46,7 @@ public class MidasClient implements ClientModInitializer {
 
 			@Override
 			public void reload(ResourceManager manager) {
+
 				GOLD_BLOCK_MODEL = null;
 			}
 		});
