@@ -1,9 +1,0 @@
-{
-  "sources": [
-    {
-      "type": "directory",
-      "source": "midas_blocks",
-      "prefix": "midas_blocks/"
-    }
-  ]
-}

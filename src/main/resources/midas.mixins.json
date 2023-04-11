@@ -1,23 +1,23 @@
 {
-	"required": true,
-	"package": "com.bawnorton.midas.mixin",
-	"compatibilityLevel": "JAVA_17",
-	"mixins": [
-		"AbstractBlockAccessor",
-		"BlockEntityMixin",
-		"ChestBlockEntityMixin",
-		"CreeperEntityMixin",
-		"EndermanEntityMixin",
-		"EntityMixin",
-		"ItemEntityMixin",
-		"LivingEntityMixin",
-		"MinecartEntityMixin",
-		"MobEntityMixin",
-		"PlayerEntityMixin",
-		"PlayerInventoryMixin",
-		"ServerPlayerEntityMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
+  "required": true,
+  "package": "com.bawnorton.midas.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "AbstractBlockAccessor",
+    "BlockEntityMixin",
+    "ChestBlockEntityMixin",
+    "CreeperEntityMixin",
+    "EndermanEntityMixin",
+    "EntityMixin",
+    "ItemEntityMixin",
+    "LivingEntityMixin",
+    "MinecartEntityMixin",
+    "MobEntityMixin",
+    "PlayerEntityMixin",
+    "PlayerInventoryMixin",
+    "ServerPlayerEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
 	}
 }

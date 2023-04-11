@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+      "midas:pactolus_water",
+      "midas:flowing_pactolus_water"
+  ]
+}

@@ -16,7 +16,11 @@ public abstract class ChestBlockEntityRendererMixin {
     @Redirect(method = "render(Lnet/minecraft/block/entity/BlockEntity;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;II)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/TexturedRenderLayers;getChestTextureId(Lnet/minecraft/block/entity/BlockEntity;Lnet/minecraft/block/enums/ChestType;Z)Lnet/minecraft/client/util/SpriteIdentifier;"))
     private SpriteIdentifier getChestTextureId(BlockEntity blockEntity, ChestType chestType, boolean bl) {
         if (MidasApi.isGold(blockEntity)) {
-            return new SpriteIdentifier(TexturedRenderLayers.CHEST_ATLAS_TEXTURE, new Identifier("midas", "entity/chest/gold"));
+            return new SpriteIdentifier(TexturedRenderLayers.CHEST_ATLAS_TEXTURE, switch(chestType) {
+                case SINGLE -> new Identifier("midas", "entity/chest/gold");
+                case LEFT -> new Identifier("midas", "entity/chest/gold_left");
+                case RIGHT -> new Identifier("midas", "entity/chest/gold_right");
+            });
         }
         return TexturedRenderLayers.getChestTextureId(blockEntity, chestType, bl);
     }

@@ -2,7 +2,6 @@ package com.bawnorton.midas.mixin;
 
 import com.bawnorton.midas.access.DataSaverAccess;
 import com.bawnorton.midas.api.MidasApi;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.data.DataTracker;
@@ -75,7 +74,7 @@ public abstract class PlayerEntityMixin implements DataSaverAccess {
                         BlockEntity blockEntity = player.world.getBlockEntity(blockPos);
                         MidasApi.turnToGold(blockEntity);
                         if (blockEntity != null) return;
-                        player.world.setBlockState(blockPos, MidasApi.turnToGold(blockState, blockPos, world), Block.NOTIFY_ALL);
+                        MidasApi.turnToGold(blockState, blockPos, world);
                     });
         }
     }

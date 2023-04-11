@@ -2,12 +2,17 @@ package com.bawnorton.midas.mixin;
 
 import com.bawnorton.midas.access.DataSaverAccess;
 import com.bawnorton.midas.api.MidasApi;
+import com.bawnorton.midas.liquid.PactolusFluid;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -34,6 +39,9 @@ public abstract class LivingEntityMixin implements DataSaverAccess {
     @Override
     public void setGold(boolean gold) {
         ((LivingEntity) (Object) this).getDataTracker().set(IS_GOLD, gold);
+        if(!gold && ((LivingEntity) (Object) this) instanceof MobEntity mobEntity) {
+            mobEntity.setAiDisabled(false);
+        }
     }
 
     @Inject(method = "dropLoot", at = @At("HEAD"), cancellable = true)
@@ -57,6 +65,31 @@ public abstract class LivingEntityMixin implements DataSaverAccess {
                 --i;
             }
             ci.cancel();
+        }
+    }
+
+    @Inject(method = "baseTick", at = @At("TAIL"))
+    private void baseTick(CallbackInfo ci) {
+        Box box = ((LivingEntity) (Object) this).getBoundingBox().contract(0.001);
+        int minX = (int) Math.floor(box.minX);
+        int minY = (int) Math.floor(box.minY);
+        int minZ = (int) Math.floor(box.minZ);
+        int maxX = (int) Math.ceil(box.maxX);
+        int maxY = (int) Math.ceil(box.maxY);
+        int maxZ = (int) Math.ceil(box.maxZ);
+        BlockPos.Mutable mutable = new BlockPos.Mutable();
+        for(int x = minX; x < maxX; x++) {
+            for(int y = minY; y < maxY; y++) {
+                for(int z = minZ; z < maxZ; z++) {
+                    mutable.set(x, y, z);
+                    FluidState fluidState = ((LivingEntity) (Object) this).world.getFluidState(mutable);
+                    Fluid fluid = fluidState.getFluid();
+                    if(fluid instanceof PactolusFluid) {
+                        MidasApi.cleanse((LivingEntity) (Object) this);
+                        return;
+                    }
+                }
+            }
         }
     }
 }

@@ -7,9 +7,6 @@
     "LivingEntityRendererMixin",
     "MinecartEntityRendererMixin",
     "PlayerEntityRendererMixin",
-    "SpriteContentsMixin",
-    "SpriteLoaderMixin",
-    "TextureStitcherAccessor",
     "RenderLayerMixin"
   ],
   "injectors": {

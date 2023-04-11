@@ -1,12 +1,11 @@
 package com.bawnorton.midas.api;
 
-import com.bawnorton.midas.Midas;
 import com.bawnorton.midas.access.DataSaverAccess;
 import com.bawnorton.midas.access.ServerPlayerAccess;
 import com.bawnorton.midas.block.GoldBlock;
-import com.bawnorton.midas.block.GoldBlockEntity;
+import com.bawnorton.midas.block.MidasBlocks;
+import com.bawnorton.midas.block.entity.GoldBlockEntity;
 import com.bawnorton.midas.entity.GoldPlayerEntity;
-import com.bawnorton.midas.item.GoldItem;
 import com.bawnorton.midas.network.Networking;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -15,7 +14,9 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
@@ -27,30 +28,19 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.property.Property;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class MidasApi {
-
-    private static Item getGoldCopy(Item item) {
-        if(item == Items.AIR) return item;
-        if(item instanceof GoldItem) return item;
-        return Midas.DEFAULT_GOLD_ITEM;
-    }
-
-    private static Block getGoldCopy(Block block) {
-        if(block.getDefaultState().isAir()) return block;
-        if(block instanceof GoldBlock) return block;
-        return Midas.DEFAULT_GOLD_BLOCK;
-    }
-
     public static void cursePlayer(PlayerEntity player) {
         DataSaverAccess playerEntityAccess = getDataAccess(player);
         if(playerEntityAccess == null) return;
         if(playerEntityAccess.isCursed()) return;
+
         playerEntityAccess.setCursed(true);
         NbtCompound midasData = playerEntityAccess.getMidasData();
         midasData.putBoolean("cursed", true);
@@ -63,6 +53,7 @@ public abstract class MidasApi {
         DataSaverAccess playerEntityAccess = getDataAccess(player);
         if(playerEntityAccess == null) return;
         if(!playerEntityAccess.isCursed()) return;
+
         playerEntityAccess.setCursed(false);
         NbtCompound midasData = playerEntityAccess.getMidasData();
         midasData.putBoolean("cursed", false);
@@ -74,6 +65,7 @@ public abstract class MidasApi {
     public static boolean isCursed(PlayerEntity player) {
         DataSaverAccess playerEntityAccess = getDataAccess(player);
         if(playerEntityAccess == null) return false;
+
         return playerEntityAccess.isCursed();
     }
 
@@ -106,9 +98,12 @@ public abstract class MidasApi {
     }
 
     public static void turnToGold(BlockEntity blockEntity) {
+        if(blockEntity instanceof GoldBlockEntity) return;
+
         DataSaverAccess blockEntityAccess = getDataAccess(blockEntity);
         if(blockEntityAccess == null) return;
         if(blockEntityAccess.isGold()) return;
+
         NbtCompound midasData = blockEntityAccess.getMidasData();
         midasData.putBoolean("gold", true);
         blockEntity.markDirty();
@@ -118,6 +113,7 @@ public abstract class MidasApi {
     public static boolean isGold(Object obj) {
         DataSaverAccess dataAccess = getDataAccess(obj);
         if(dataAccess == null) return false;
+
         return dataAccess.isGold();
     }
 
@@ -129,6 +125,22 @@ public abstract class MidasApi {
             return null;
         }
         throw new IllegalArgumentException(obj + " is not a DataSaverAccess");
+    }
+
+    public static BlockState turnToGold(BlockState blockState, BlockPos pos, World world) {
+        if(world.getBlockEntity(pos) != null) {
+            turnToGold(world.getBlockEntity(pos));
+            return blockState;
+        }
+        Block originalBlock = blockState.getBlock();
+        Block block = turnToGold(originalBlock);
+        BlockState newState = copyProperties(blockState, block.getDefaultState());
+        world.setBlockState(pos, newState, Block.NOTIFY_ALL);
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if(blockEntity instanceof GoldBlockEntity goldBlockEntity) {
+            goldBlockEntity.setData(originalBlock);
+        }
+        return newState;
     }
 
     public static ItemStack turnToGold(ItemStack stack) {
@@ -183,7 +195,7 @@ public abstract class MidasApi {
             return Items.GOLDEN_HORSE_ARMOR;
         if (item instanceof BlockItem)
             return turnToGold(((BlockItem) item).getBlock()).asItem();
-        return getGoldCopy(item);
+        return Items.GOLD_INGOT;
     }
 
     public static Block turnToGold(Block block) {
@@ -199,27 +211,27 @@ public abstract class MidasApi {
         if(block == Blocks.NETHER_QUARTZ_ORE || block == Blocks.NETHER_GOLD_ORE) {
             return Blocks.NETHER_GOLD_ORE;
         }
-        return getGoldCopy(block);
+        return MidasBlocks.GOLD_BLOCK;
     }
 
-    public static BlockState turnToGold(BlockState blockState, BlockPos pos, ServerWorld world) {
-        if(blockState.isOf(Midas.DEFAULT_GOLD_BLOCK)) return blockState;
+    public static void cleanse(LivingEntity entity) {
+        DataSaverAccess entityAccess = getDataAccess(entity);
+        if(entityAccess == null) return;
+        if(!entityAccess.isGold()) return;
+        entityAccess.setGold(false);
+        NbtCompound midasData = entityAccess.getMidasData();
+        midasData.putBoolean("gold", false);
+    }
 
-        Block original = blockState.getBlock();
-        Block block = turnToGold(blockState.getBlock());
-        BlockState newState = copyProperties(blockState, block.getDefaultState());
+    public static void cleanse(WorldAccess world, BlockPos pos, GoldBlock goldBlock) {
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (!(blockEntity instanceof GoldBlockEntity goldBlockEntity)) return;
+
+        Block originalBlock = goldBlockEntity.getOriginal();
+        if (originalBlock == null) return;
+
+        BlockState newState = copyProperties(goldBlock.getDefaultState(), originalBlock.getDefaultState());
         world.setBlockState(pos, newState, Block.NOTIFY_ALL);
-        if(block instanceof GoldBlock) {
-            BlockEntity entity = world.getBlockEntity(pos);
-            if(entity instanceof GoldBlockEntity goldBlockEntity) {
-                goldBlockEntity.setData(original);
-            } else {
-                GoldBlockEntity goldBlockEntity = new GoldBlockEntity(pos, newState);
-                goldBlockEntity.setData(original);
-                world.addBlockEntity(goldBlockEntity);
-            }
-        }
-        return newState;
     }
 
     private static BlockState copyProperties(BlockState blockState, BlockState newBlockState) {

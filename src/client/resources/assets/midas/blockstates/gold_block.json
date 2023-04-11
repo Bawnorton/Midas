@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "midas:special/gold_block"
+      "model": "minecraft:block/gold_block"
     }
   }
 }
