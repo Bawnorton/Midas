@@ -17,6 +17,9 @@ import net.minecraft.util.Identifier;
 
 public class MidasClient implements ClientModInitializer {
 
+	public static final Identifier MIDAS_BLOCK_ATLAS_TEXTURE = Midas.id("textures/atlas/midas_blocks.png");
+	public static final Identifier MIDAS_BLOCK_ATLAS = Midas.id("midas_blocks");
+
 	@Override
 	public void onInitializeClient() {
 		EntityModelLayerRegistry.registerModelLayer(GoldPlayerEntityModel.LAYER_LOCATION, GoldPlayerEntityModel::getTextureModelData);

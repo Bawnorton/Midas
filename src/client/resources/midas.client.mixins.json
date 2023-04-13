@@ -13,5 +13,11 @@
     "defaultRequire": 1
   },
   "mixins": [
+    "SpriteAccessor",
+    "SpriteAtlasManagerMixin",
+    "SpriteAtlasTextureMixin",
+    "SpriteContentsAccessor",
+    "SpriteLoaderMixin",
+    "StitchResultAccessor"
   ]
 }
